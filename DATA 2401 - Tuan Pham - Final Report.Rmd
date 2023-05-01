@@ -3,9 +3,9 @@ title: "Data 2401 - Final Report"
 author: "Tuan Pham"
 date: "2023-04-26"
 output:
-  pdf_document: default
   html_document:
     df_print: paged
+  pdf_document: default
 ---
 
 
@@ -20,7 +20,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
   - Provide an edge of the problems, a tip of the iceberg.
   
-  - Raise your insights about the problems, then you can draw conclusions for yourself in order to protect you and your family.
+  - Raise your insights about the problems, and then you can draw conclusions for yourself in order to protect you and your family.
   
   - Recognize the primitive signs, not to live in skeptics but to enhance your awareness.
 
@@ -85,7 +85,7 @@ knitr::include_graphics('barack-obama3.jpg')
   
 
 
-## DATA(cont.)
+## DATA (cont.)
 
 ```{r Input Source, echo=TRUE, message=FALSE, warning=FALSE}
 my_data <- read.csv('Mother Jones - Mass Shootings Database, 1982 - 2023 - Sheet1.csv', na.strings = "-")
@@ -107,7 +107,7 @@ my_data2 <- read.csv('Violence Project Mass Shooter Database - Version 6.1 - Ful
   > TBD (To Be Determined) - The information has not been confirm yet.
 
 
-## A Glimpse Over the Data
+## A Glimpse over the Data
 
 
 ```{r Packages Glimpse, message=FALSE, warning=FALSE, include=FALSE, results='markup'}
@@ -146,7 +146,6 @@ glimpse(my_data)
 **Longitude/Latitude**: GPS coordination of the incident's location
 
 **Type**: Mass Shooting or Shooting Spree designated to the incident
-
 
 
 ## Packages
@@ -203,12 +202,15 @@ my_data$gender[my_data$gender == 'F'] <- 'Female'
 ```
 
 ## What's The Mass Shooting?
+
 <br>
 
 > The FBI defines `a mass shooting` as any incidents in which **at least four people** are murdered with a gun. 
+
 <br>
 
 [Source: DOJ](https://www.ojp.gov/ncjrs/virtual-library/abstracts/analysis-recent-mass-shootings)
+
 
 ### What questions should be raised?
 
@@ -264,7 +266,7 @@ my_data %>%
 
 ## 
 
-**Las Vegas Strip Massacre**: 604 victims 
+**1. Las Vegas Strip Massacre**: 604 victims 
 
 ```{r Vegas 604, echo=FALSE}
 my_data %>%
@@ -273,9 +275,9 @@ my_data %>%
 ```
 
 
-**LA Dance Studio Mass Shooting**: Oldest age for a mass shooter
+**2. LA Dance Studio Mass Shooting**: Oldest age for a mass shooter
 
-**West Middle School Killings**: Youngest age 
+**3. West Middle School Killings**: Youngest age 
 
 
 ```{r Age Outlier, echo=FALSE}
@@ -287,23 +289,21 @@ my_data %>%
 - Those three cases are the outliers for each of the variables that they represent.
 
 
-
 ## Who are they?
 
 
-
-
-#### The Picture in General
+### The Picture in General
 
 ```{r Race, echo=FALSE, warning=FALSE}
 my_data %>%
   group_by(race) %>% 
   summarise(Total = n()) %>% 
   arrange(desc(Total)) %>% 
-  mutate(Ratio = 100 * Total/sum(Total))
+  mutate(Ratio = 100 * Total/sum(Total)) %>% 
+  rename('Race' = race)
 ```
 
-#### Before 2002
+### Before 2002
 
 ```{r echo=FALSE}
 my_data %>% 
@@ -311,7 +311,8 @@ my_data %>%
   filter(year < 2002) %>% 
   summarise(Count = n()) %>% 
   arrange(desc(Count)) %>% 
-  mutate(Ratio = 100 * Count/sum(Count))
+  mutate(Ratio = 100 * Count/sum(Count)) %>% 
+  rename('Race' = race)
 ```
 
 #### After 2002
@@ -322,7 +323,8 @@ my_data %>%
   filter(year > 2002) %>% 
   summarise(Count = n()) %>% 
   arrange(desc(Count)) %>% 
-  mutate(Ratio = 100 * Count/sum(Count))
+  mutate(Ratio = 100 * Count/sum(Count)) %>% 
+  rename('Race' = race)
 ```
 
 -	Since 2002 is the year without any major incidents about the mass shooting, I chose it as a reference point for my split stats.
@@ -331,7 +333,8 @@ my_data %>%
 
 -	Remember there are four decades before 2002, and only two decades after 2002, but the cases after 2002 shoot up more than double before 2002, 55 versus 109 respectively. 
 
-##
+## The Average Age of the Shooters among Races
+
 
 ```{r Age vs Race Plot, echo=FALSE, warning=FALSE}
 my_data %>% 
@@ -343,9 +346,6 @@ my_data %>%
            
 ```
 
-
-The Average Age of the Shooters among Races
-
 |Race           |Average Age of the Shooters    |
 |:--------------|-------------------------------|
 |White          |~ 28-29 years old              |
@@ -355,6 +355,44 @@ The Average Age of the Shooters among Races
 |Native Am.     |~ 18 years old                 |  
 
 
+## Gender of the Shooters 
+
+```{r Gender Percentage, echo=FALSE}
+my_data %>%
+  group_by(gender) %>% 
+  summarise(Count = n()) %>% 
+  mutate(Percentage = 100 * Count/sum(Count)) %>% 
+  arrange(desc(Percentage)) %>% 
+  rename('Gender' = gender)
+```
+
+
+|Gender           |Percentage   |
+|:----------------|-------------|
+|Male             |     97%     |
+|Female           |     2.5%    |
+|Transgender      |     0.5%    |
+
+
+## Gender and Age of the Shooters
+
+```{r Age n Gender Density, echo=FALSE}
+my_data %>%
+  filter(!gender == 'Trans') %>% 
+  filter(!gender == 'Male & Female') %>% 
+  ggplot(aes(x = age_of_shooter, fill = gender)) + geom_density(alpha = 0.5) +
+  facet_wrap(~gender)+
+  labs(title = 'Gender and Age of the Shooter',
+       x = 'Age of the Shooter',
+       y = 'Density',
+       fill = 'Gender')
+```
+
+
+|Gender       |Most Likely                  |
+|:------------|-----------------------------|
+|Male         |Early 20's to Mid 40's       |
+|Female       |Mid 20's or Mid 40's         |
 
 
 ## Where Do The Mass Shootings Likely Occur?
@@ -381,7 +419,6 @@ my_data %>%
   mutate(Percentage = 100 * Count/sum(Count))
 ```
 
-##
 
 |Location             |Frequency  |
 |:--------------------|-----------|
@@ -458,7 +495,6 @@ my_data%>%
 ```
 
 
-
 ## Will The Shooter's Age Be Related over Time?
 
 
@@ -483,23 +519,22 @@ knitr::include_graphics('Explanation-Age-of-Shooter-over-Time.jpg')
 ```
 
 
-
 +There are 3 things we can spot instinctively that
 
-  - The right-hand side of the first zone and the third zone yield more dots than the whole bigger left-hand side one. Those zones is the least expected ages for the incidents to happen, but they still have more cases than its left-hand side ones.
+  - The right-hand side of the first zone and the third zone yield more dots than the whole bigger left-hand side one. Those zones are the least expected ages for the incidents to happen, but they still have more cases than its left-hand side ones.
 
-  - The density of the right-hand side in the second zone is more condense than the left-hand side, even the area is smaller but the dots represent heavier than the other side. Zone II is the main labor force of the market, and it will be divided into three sub-area. 
+  - The density of the right-hand side in the second zone is more condense than the left-hand side, even the area is smaller but the dots represent heavier than the other side. Zone II is the main labor force of the market, and it will be divided into three sub-areas. 
 
   - Take a look back to the whole picture, the right-hand side seems to be outnumbering to the left hand side, which means the number of cases has rapidly increased for last two decades.
   
 
-+ Take a closer look to the Zone II, I divided it into three sub-zone:
++ Take a closer look to the Zone II; I divided it into three sub-zones:
   
   - Sub-area 1: Young people with no experiences either in life or at work tend to get shocked and get impulses if they got history of abuses. They got full energy to do what they want to do. They will make tremendous mistakes with that source of energy unless they have well-guidance from older adults.
   
   - Sub-area 2: Most of people in this area got a career to follow, a family to take care of and some life's experiences. Health is at peak. Some of the conflicts at work might trigger their impulses, but in general they can hold it through.
   
-  - Sub-area 3: In this age's range, an adult is mature in life both financially and mentally, even the health is in downturn. Kids got older, career is more stable. Anybody in this age got something to lose, so they normally do not do anything irrationally unless they got some mental issues. That probably explains why there's no shooters without prior mental health in this range.
+  - Sub-area 3: In this age's range, an adult is mature in life both financially and mentally, even the health is in downturn. Kids got older, career is more stable. Anybody in this age got something to lose, so they normally do not do anything irrationally unless they got some mental health issues. That probably explains why there are no shooters without prior mental health in this range.
 
 ## With Prior Mental Health Issues
 
@@ -522,7 +557,7 @@ The incidents in which the shooter had prior mental health issues have plotted a
 
 ## Without Prior Mental Health Issues Plot
 
-Now we take it off the plot to see how the original plot look like.
+Now we take it off the plot to see how the original plot looks like.
 
 ```{r General Age Plot3, echo=FALSE, fig.height=5, fig.width=7, warning=FALSE}
 p <- my_data %>%
@@ -543,7 +578,10 @@ p + geom_point() + labs(title = 'Age of The Shooters over Time',
 
 Compare to the original plot, we can see intuitively the dots' density was reduced significantly. Hence, we are going to find the difference between with and without prior mental health issues by numbers.
 
-## Compare on Real Numbers
+## Realize Intuitive Consideration by Numbers
+
+We can draw some remarks by spotting the plots. Now we are going to consider some numbers from the data to see how much the `mental health issues` contribute to the problem. 
+
 
 ```{r Mental Health}
 my_data %>%
@@ -566,7 +604,7 @@ In a different case, I cross off the `legal weapons obtained`, only 16 cases was
 
 ## Conclusion:
 
-Background check on Mental Health Issues is crucial. Decreasing the cases down to fifty percent is ideal, but twenty or thirty percent down is sufficient to save many lives.
+People always argued about either we should do the background check or adjust the law over gun control. Now we can state that background check is more important than gun control, especially background check on mental health issues is crucial. Decreasing the cases down to fifty percent is ideal, but twenty or thirty percent down is sufficient to save many lives.
 
 ##
 
@@ -591,53 +629,17 @@ p + geom_density(alpha = .5) +
 |No                                      |        around 30          |
 
 
-##
+<br>
 
-```{r Age n Gender Density, echo=FALSE}
-my_data %>%
-  filter(!gender == 'Trans') %>% 
-  filter(!gender == 'Male & Female') %>% 
-  ggplot(aes(x = age_of_shooter, fill = gender)) + geom_density(alpha = 0.5) +
-  facet_wrap(~gender)+
-  labs(title = 'Gender and Age of the Shooter',
-       x = 'Age of the Shooter',
-       y = 'Density',
-       fill = 'Gender')
-```
-
-|Gender       |Most Likely                  |
-|:------------|-----------------------------|
-|Male         |Early 20's to Mid 40's       |
-|Female       |Mid 20's or Mid 40's         |
-
-
-##
-
-```{r Gender Percentage, echo=FALSE}
-my_data %>%
-  group_by(gender) %>% 
-  summarise(Count = n()) %>% 
-  mutate(Percentage = 100 * Count/sum(Count)) %>% 
-  arrange(desc(Percentage))
-```
-
-
-|Gender           |Percentage   |
-|:----------------|-------------|
-|Male             |     97%     |
-|Female           |     2.5%    |
-|Transgender      |     0.5%    |
 
 
 ## Geography Graph of The Events
 
-```{r Excluded HI n AK, warning=FALSE, include=FALSE}
-my_data_notHInAL <- my_data %>% 
-  filter(!state %in% c('HI','AK'))
-```
-
 
 ```{r Incidents Map, echo=FALSE, fig.height=8, fig.width=8, message=FALSE, warning=FALSE}
+my_data_notHInAL <- my_data %>% 
+  filter(!state %in% c('HI','AK'))
+
 library(maps)
 states_map <- map_data("state") ## this gives us the lat and long for each point of each state.
   
@@ -664,7 +666,8 @@ my_data %>%
   group_by(state) %>% 
   summarize(Cases = n()) %>% 
   arrange(desc(Cases)) %>% 
-  mutate(Percentage = 100 * Cases/sum(Cases))
+  mutate(Percentage = 100 * Cases/sum(Cases)) %>% 
+  rename('State' = state)
 ```
 Colorado is the state in top 5 rating of mass shooting even the population rank is not in top 20 nationwide.
 
@@ -686,7 +689,8 @@ my_data %>%
   group_by(day_of_week) %>% 
   summarise(Count = n()) %>% 
   arrange(desc(Count)) %>% 
-  mutate(Percentage = 100 * Count/sum(Count))
+  mutate(Percentage = 100 * Count/sum(Count)) %>% 
+  rename('Day of the Week' = day_of_week )
 ```
 
 
