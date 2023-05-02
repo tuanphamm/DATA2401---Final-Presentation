@@ -3,9 +3,9 @@ title: "Data 2401 - Final Report"
 author: "Tuan Pham"
 date: "2023-04-26"
 output:
+  pdf_document: default
   html_document:
     df_print: paged
-  pdf_document: default
 ---
 
 
